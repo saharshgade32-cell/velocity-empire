@@ -1,0 +1,386 @@
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:#000; overflow:hidden; font-family:'Rajdhani',sans-serif; color:#fff; touch-action:none; -webkit-user-select:none; user-select:none; position:fixed; width:100%; height:100%; }
+#c { display:block; width:100vw; height:100svh; touch-action:none; }
+
+/* HUD */
+#hud {
+  position:fixed; inset:0; pointer-events:none; z-index:10;
+}
+
+/* Speedometer - bottom right */
+#speedo-container {
+  position:absolute; bottom:max(30px, env(safe-area-inset-bottom, 30px)); right:30px;
+  width:180px; height:180px;
+}
+#speedo-bg {
+  width:180px; height:180px; border-radius:50%;
+  background: radial-gradient(circle at 40% 35%, #1a1e2a, #0a0c12);
+  border:3px solid rgba(255,100,0,0.6);
+  box-shadow: 0 0 30px rgba(255,80,0,0.3), inset 0 0 20px rgba(0,0,0,0.8);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+#speedo-val {
+  font-family:'Bebas Neue',sans-serif; font-size:3.2rem; line-height:1;
+  background: linear-gradient(180deg, #fff, #ffcc00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+#speedo-unit { font-size:0.7rem; color:rgba(255,255,255,0.4); letter-spacing:3px; text-transform:uppercase; }
+#gear-display {
+  position:absolute; bottom:30px; right:222px;
+  width:60px; height:60px; border-radius:50%;
+  background: radial-gradient(circle, #1a1e2a, #0a0c12);
+  border:2px solid rgba(0,170,255,0.5);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  box-shadow: 0 0 15px rgba(0,170,255,0.2);
+}
+#gear-val { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:#00aaff; line-height:1; }
+#gear-label { font-size:0.55rem; color:rgba(255,255,255,0.3); letter-spacing:2px; }
+
+/* RPM bar */
+#rpm-bar-container {
+  position:absolute; bottom:100px; right:30px;
+  width:180px; height:8px;
+  background:rgba(255,255,255,0.08);
+  border-radius:4px; overflow:hidden;
+}
+#rpm-bar {
+  height:100%;
+  background: linear-gradient(90deg, #00ff88, #ffcc00, #ff4400);
+  border-radius:4px;
+  transition: width 0.08s;
+}
+
+/* Mini map */
+#minimap {
+  position:absolute; bottom:30px; left:30px;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(10,12,18,0.85);
+  border:2px solid rgba(255,100,0,0.4);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+#minimap canvas { width:100%; height:100%; }
+
+/* Top HUD bar */
+#top-bar {
+  position:absolute; top:0; left:0; right:0;
+  height:54px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+}
+.top-stat {
+  display:flex; flex-direction:column; align-items:center;
+  min-width:80px;
+}
+.top-stat .ts-label { font-size:0.6rem; color:rgba(255,255,255,0.35); letter-spacing:2px; text-transform:uppercase; }
+.top-stat .ts-val { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; line-height:1.1; }
+
+#lap-display { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:3px; }
+.pos-1 { color:#ffcc00; } .pos-2 { color:#aaaaff; } .pos-3 { color:#ff8844; } .pos-n { color:#fff; }
+
+/* Controls overlay */
+#controls-hint {
+  position:absolute; bottom:220px; left:30px;
+  background:rgba(10,12,18,0.7);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px; padding:10px 14px;
+  font-size:0.75rem; line-height:1.8; color:rgba(255,255,255,0.5);
+}
+.ctrl-key {
+  display:inline-block; background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2); border-radius:3px;
+  padding:0 5px; font-family:'Share Tech Mono',monospace;
+  font-size:0.65rem; color:#fff; margin:0 2px;
+}
+
+/* Start screen */
+#start-screen {
+  position:fixed; inset:0; z-index:50;
+  background: radial-gradient(ellipse at center, #0d1020 0%, #050710 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px;
+}
+#start-screen h1 {
+  font-family:'Bebas Neue',sans-serif; font-size:5rem; letter-spacing:12px;
+  background: linear-gradient(135deg, #ff4d00, #ffcc00, #ff4d00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  text-shadow:none; animation: titlePulse 2s ease-in-out infinite;
+}
+@keyframes titlePulse {
+  0%,100% { filter:brightness(1); }
+  50% { filter:brightness(1.3); }
+}
+.car-selector { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-width:900px; }
+.car-option {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border:1px solid rgba(255,255,255,0.1); border-radius:12px;
+  padding:16px 20px; cursor:pointer; transition:all 0.2s;
+  text-align:center; min-width:140px;
+}
+.car-option:hover, .car-option.active {
+  border-color:rgba(255,100,0,0.8);
+  box-shadow:0 0 20px rgba(255,80,0,0.3);
+  background: linear-gradient(135deg, rgba(255,80,0,0.1), rgba(255,80,0,0.05));
+}
+.car-option .co-emoji { font-size:2.5rem; }
+.car-option .co-name { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:2px; margin-top:4px; }
+.car-option .co-stats { font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:4px; }
+.co-stat-bar { height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin:2px 0; overflow:hidden; }
+.co-stat-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,#ff4d00,#ffcc00); }
+
+#btn-start {
+  background: linear-gradient(135deg, #ff4d00, #ff7700);
+  border:none; color:#fff; padding:16px 60px;
+  font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:5px;
+  border-radius:8px; cursor:pointer;
+  box-shadow:0 0 30px rgba(255,80,0,0.5);
+  transition:all 0.2s;
+}
+#btn-start:hover { transform:scale(1.05); box-shadow:0 0 50px rgba(255,80,0,0.7); }
+
+#track-selector { display:flex; gap:10px; }
+.track-opt {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px; padding:10px 16px; cursor:pointer; transition:all 0.2s;
+  font-size:0.85rem; text-align:center;
+}
+.track-opt:hover, .track-opt.active {
+  border-color:rgba(255,200,0,0.6); color:#ffcc00;
+  box-shadow:0 0 15px rgba(255,200,0,0.2);
+}
+
+/* Race result */
+#race-result {
+  position:fixed; inset:0; z-index:60;
+  background:rgba(0,0,0,0.85);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px;
+}
+#race-result h2 {
+  font-family:'Bebas Neue',sans-serif; font-size:5rem; letter-spacing:8px;
+}
+.result-win { color:#ffcc00; text-shadow:0 0 40px rgba(255,200,0,0.6); }
+.result-lose { color:#ff4444; text-shadow:0 0 40px rgba(255,68,68,0.6); }
+#result-detail { font-size:1.2rem; color:rgba(255,255,255,0.6); }
+#result-reward { font-family:'Share Tech Mono',monospace; font-size:1.4rem; color:#00ff88; }
+
+/* Countdown */
+#countdown {
+  position:fixed; inset:0; z-index:40;
+  display:none; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+#countdown-num {
+  font-family:'Bebas Neue',sans-serif; font-size:15rem; line-height:1;
+  color:#ffcc00; text-shadow:0 0 60px rgba(255,200,0,0.8);
+  animation:countAnim 0.9s ease-out;
+}
+@keyframes countAnim {
+  0% { transform:scale(2); opacity:0; }
+  30% { opacity:1; transform:scale(1); }
+  70% { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(0.8); }
+}
+
+#cash-display {
+  position:absolute; top:60px; right:30px;
+  font-family:'Share Tech Mono',monospace; font-size:1.1rem;
+  color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.4);
+}
+
+/* Nitro bar */
+#nitro-container {
+  position:absolute; bottom:220px; right:30px;
+  width:180px;
+}
+#nitro-label { font-size:0.6rem; letter-spacing:3px; color:rgba(0,170,255,0.6); text-align:center; margin-bottom:4px; }
+#nitro-bar-bg { height:8px; background:rgba(0,170,255,0.1); border-radius:4px; overflow:hidden; border:1px solid rgba(0,170,255,0.2); }
+#nitro-bar { height:100%; border-radius:4px; background:linear-gradient(90deg,#0066ff,#00aaff,#00ffee); transition:width 0.1s; }
+
+/* Damage indicator */
+#damage-vignette {
+  position:fixed; inset:0; pointer-events:none; z-index:5;
+  border-radius:0;
+  box-shadow: inset 0 0 0px transparent;
+  transition: box-shadow 0.3s;
+}
+#damage-vignette.hit { box-shadow: inset 0 0 120px rgba(255,40,0,0.6); }
+
+/* Position big display */
+#big-pos {
+  position:absolute; bottom:220px; left:50%; transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:4px;
+  opacity:0.85;
+}
+
+/* ===== TOUCH CONTROLS ===== */
+/* =========================================
+   TOUCH CONTROLS — phones, tablets, iPad
+   ========================================= */
+#touch-controls {
+  position:fixed; inset:0; z-index:20; pointer-events:none;
+  display:none;
+}
+
+/* ---- Joystick (left side) ---- */
+#joystick-zone {
+  position:absolute;
+  bottom: max(28px, env(safe-area-inset-bottom, 28px));
+  left: max(20px, env(safe-area-inset-left, 20px));
+  width:150px; height:150px;
+  pointer-events:all;
+}
+#joystick-base {
+  width:150px; height:150px; border-radius:50%;
+  background:rgba(255,255,255,0.07);
+  border:2px solid rgba(255,255,255,0.18);
+  position:relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4), inset 0 0 30px rgba(0,0,0,0.3);
+}
+#joystick-knob {
+  width:62px; height:62px; border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,180,60,1), rgba(255,70,0,0.85));
+  border:2px solid rgba(255,210,0,0.7);
+  box-shadow:0 0 22px rgba(255,80,0,0.5), 0 2px 6px rgba(0,0,0,0.5);
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+
+/* ---- Tilt steering label (shown when tilt active) ---- */
+#tilt-label {
+  position:absolute;
+  bottom: max(28px, env(safe-area-inset-bottom,28px));
+  left:50%; transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif; font-size:0.75rem; letter-spacing:3px;
+  color:rgba(255,200,80,0.6);
+  display:none;
+  pointer-events:none;
+}
+
+/* ---- Action buttons (right side) ---- */
+#action-buttons {
+  position:absolute;
+  bottom: max(28px, env(safe-area-inset-bottom, 28px));
+  right: max(20px, env(safe-area-inset-right, 20px));
+  display:grid; grid-template-columns:68px 68px; grid-template-rows:68px 68px;
+  gap:10px;
+  pointer-events:all;
+}
+.touch-btn {
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.22);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; pointer-events:all;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.6rem; letter-spacing:1px;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:transform 0.06s, box-shadow 0.06s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.touch-btn:active, .touch-btn.pressed { transform:scale(0.88); }
+.touch-btn .btn-icon { font-size:1.3rem; line-height:1; margin-bottom:2px; }
+
+#btn-gas   { background:rgba(0,200,80,0.2);  border-color:rgba(0,255,100,0.5);  box-shadow:0 0 14px rgba(0,255,100,0.15); grid-column:2; grid-row:1; }
+#btn-gas.pressed { background:rgba(0,220,90,0.45); }
+#btn-brake { background:rgba(255,40,0,0.2);  border-color:rgba(255,60,0,0.5);   box-shadow:0 0 14px rgba(255,60,0,0.15);  grid-column:2; grid-row:2; }
+#btn-brake.pressed { background:rgba(255,50,0,0.45); }
+#btn-nitro { background:rgba(0,150,255,0.2); border-color:rgba(0,180,255,0.5);  box-shadow:0 0 14px rgba(0,180,255,0.15); grid-column:1; grid-row:1; }
+#btn-nitro.pressed { background:rgba(0,160,255,0.5); }
+#btn-handbrake { background:rgba(255,200,0,0.18); border-color:rgba(255,200,0,0.4); box-shadow:0 0 14px rgba(255,200,0,0.1); grid-column:1; grid-row:2; }
+#btn-handbrake.pressed { background:rgba(255,200,0,0.45); }
+
+/* ---- Top utility buttons ---- */
+#top-touch-btns {
+  position:absolute;
+  top: max(64px, calc(env(safe-area-inset-top,0px) + 64px));
+  right: max(14px, env(safe-area-inset-right,14px));
+  display:flex; gap:8px; pointer-events:all;
+}
+.top-touch-btn {
+  background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.15);
+  border-radius:8px; padding:8px 14px;
+  font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:2px;
+  color:rgba(255,255,255,0.7); cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+}
+
+/* ---- Gamepad indicator (shown when pad detected) ---- */
+#gamepad-indicator {
+  position:absolute; top:64px; left:14px;
+  background:rgba(0,0,0,0.55); border:1px solid rgba(0,255,100,0.3);
+  border-radius:8px; padding:6px 12px;
+  font-size:0.75rem; color:rgba(0,255,100,0.7); letter-spacing:1px;
+  display:none; pointer-events:none;
+}
+
+/* =========================================
+   RESPONSIVE — hide/show elements by screen
+   ========================================= */
+
+/* Pointer: coarse = touch device — hide keyboard hint */
+@media (pointer: coarse) {
+  #controls-hint { display:none !important; }
+}
+
+/* Small phones (< 480px wide) — shrink HUD */
+@media (max-width: 479px) {
+  #joystick-zone  { width:130px; height:130px; }
+  #joystick-base  { width:130px; height:130px; }
+  #joystick-knob  { width:54px;  height:54px;  }
+  #action-buttons { grid-template-columns:60px 60px; grid-template-rows:60px 60px; gap:8px; }
+  .touch-btn .btn-icon { font-size:1.1rem; }
+  #speedo-container { width:130px; height:130px; bottom:200px; right:14px; }
+  #speedo-bg        { width:130px; height:130px; }
+  #speedo-val       { font-size:2.4rem; }
+  #gear-display     { width:46px; height:46px; bottom:200px; right:156px; }
+  #gear-val         { font-size:1.2rem; }
+  #rpm-bar-container { width:130px; bottom:350px; right:14px; }
+  #nitro-container   { width:130px; bottom:365px; right:14px; }
+  #minimap-canvas    { width:100px; height:100px; }
+  .top-stat .ts-val  { font-size:1rem; }
+  .top-stat .ts-label { font-size:0.5rem; }
+  #lap-display       { font-size:1.1rem; }
+}
+
+/* Portrait orientation warning */
+#portrait-warn {
+  position:fixed; inset:0; z-index:200;
+  background:#000;
+  display:none;
+  flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  font-family:'Bebas Neue',sans-serif; text-align:center;
+}
+#portrait-warn .pw-icon { font-size:4rem; animation: rotateHint 1.5s ease-in-out infinite; }
+@keyframes rotateHint { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
+#portrait-warn .pw-text { font-size:1.6rem; letter-spacing:4px; color:#ffcc00; }
+#portrait-warn .pw-sub  { font-size:0.9rem; color:rgba(255,255,255,0.4); letter-spacing:2px; }
+
+/* Only show portrait warning on narrow touch screens */
+@media (pointer: coarse) and (orientation: portrait) and (max-width: 768px) {
+  #portrait-warn { display:flex; }
+}
+
+/* Start screen — scrollable & responsive */
+#start-screen {
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:max(40px, env(safe-area-inset-top,40px)) 16px max(40px, env(safe-area-inset-bottom,40px));
+  justify-content:flex-start;
+  gap:14px;
+}
+#start-screen h1 { font-size:clamp(2.5rem, 8vw, 5rem); }
+.car-selector { gap:10px; }
+.car-option { min-width:clamp(110px, 22vw, 145px); padding:12px 14px; }
+.car-option .co-emoji { font-size:clamp(1.8rem, 5vw, 2.5rem); }
+
+/* Laptop — show keyboard hint */
+@media (pointer: fine) {
+  #controls-hint { display:block; }
+  #touch-controls { display:none !important; }
+}
+

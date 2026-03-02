@@ -1,0 +1,24 @@
+# GitHub Pages configuration
+# This tells GitHub Pages to serve your site from the root of the repo.
+
+title: "Velocity Empire 3D"
+description: "Free 3D browser racing game — supercars at insane speeds"
+
+# Use the default theme (none needed since we have our own index.html)
+theme: null
+
+# Tell GitHub Pages NOT to process files with Jekyll
+# (our game is plain HTML/CSS/JS, no Jekyll needed)
+include:
+  - "*.html"
+  - "css/"
+  - "js/"
+  - "assets/"
+
+exclude:
+  - "node_modules/"
+  - "*.md"
+  - ".gitignore"
+
+# Ensure clean URLs work
+permalink: pretty
